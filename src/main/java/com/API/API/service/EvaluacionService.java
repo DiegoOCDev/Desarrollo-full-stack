@@ -1,6 +1,7 @@
 package com.API.API.service;
 import java.util.List;
 
+import com.API.API.model.Estudiante;
 import com.API.API.model.Evaluacion;
 import org.springframework.stereotype.Service;
 import com.API.API.repository.EvaluacionRepository;
@@ -33,14 +34,14 @@ public class EvaluacionService {
         }
 
     }
-    public Evaluacion getEvaluacion(int id){
+    public String getEvaluacion(int id){
         String output="";
         if(repository.existsById(id)){
             Evaluacion  evaluacion = repository.findById(id).get();
             output = evaluacion.toString();
-            return evaluacion;
+            return output;
         }else{
-            return null;
+            return "No se encuentra";
         }
     }
     public List<Evaluacion> getAllEvaluaciones() {

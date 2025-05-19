@@ -13,7 +13,7 @@ import java.util.List;
 class AdminController {
     @Autowired
     private AdminService adminService;
-    @GetMapping("/GetAll")
+    @GetMapping
     public List<Admin> getAdmins(){
         return adminService.getAllAdmins();
     }
@@ -30,7 +30,7 @@ class AdminController {
         return adminService.deleteAdmin(id);
    }
    @GetMapping("/{id}")
-   public Admin getAdmin( @PathVariable int id){
+   public String getAdmin( @PathVariable int id){
         return adminService.getAdmin(id);
    }
 }

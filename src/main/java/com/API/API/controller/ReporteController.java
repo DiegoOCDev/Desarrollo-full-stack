@@ -14,12 +14,12 @@ import java.util.List;
 class ReporteController {
     @Autowired
     private ReporteService reporteService;
-    @GetMapping("/GetAll")
+    @GetMapping
     public List<Reporte> getReportes() {
         return reporteService.getAllReportes();
     }
     @GetMapping("/{id}")
-    public Reporte  getReporteById(@PathVariable int id) {
+    public String  getReporteById(@PathVariable int id) {
         return reporteService.getReporte(id);
     }
     @PostMapping
@@ -30,7 +30,7 @@ class ReporteController {
     public String updateReporte(@PathVariable int id, @RequestBody Reporte reporte) {
         return reporteService.updateReporte(id,reporte);
     }
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id]")
     public String deleteReporte(@PathVariable int id) {
         return reporteService.deleteReporte(id);
     }

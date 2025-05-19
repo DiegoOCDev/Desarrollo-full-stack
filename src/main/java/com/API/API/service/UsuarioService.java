@@ -1,7 +1,9 @@
 package com.API.API.service;
 import java.util.List;
 
+import com.API.API.model.Soporte;
 import com.API.API.model.Usuario;
+import com.API.API.repository.SoporteRepository;
 import org.springframework.stereotype.Service;
 import com.API.API.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,13 +42,14 @@ public class UsuarioService {
 
     }
 
-    public Usuario getUsuario(int id) {
+    public String getUsuario(int id) {
         String output = "";
         if (repository.existsById(id)) {
             Usuario usuario = repository.findById(id).get();
-            return usuario;
+            output = usuario.toString();
+            return output;
         } else {
-            return null;
+            return "No se encuentra";
         }
     }
 

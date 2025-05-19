@@ -2,6 +2,7 @@ package com.API.API.service;
 import java.util.List;
 
 import com.API.API.model.Estudiante;
+import com.API.API.repository.CursoRepository;
 import org.springframework.stereotype.Service;
 import com.API.API.repository.EstudianteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,14 +35,14 @@ public class EstudianteService {
         }
 
     }
-    public Estudiante getEstudiante(int id){
+    public String getEstudiante(int id){
         String output="";
         if(repository.existsById(id)){
             Estudiante  estudiante = repository.findById(id).get();
             output = estudiante.toString();
-            return estudiante;
+            return output;
         }else{
-            return null;
+            return "No se encuentra";
         }
     }
     public List<Estudiante> getAllEstudiantes() {

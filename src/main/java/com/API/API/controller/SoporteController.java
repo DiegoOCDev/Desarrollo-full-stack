@@ -14,12 +14,12 @@ import java.util.List;
 class SoporteController {
     @Autowired
     SoporteService soporteService;
-    @GetMapping("/GetAll")
+    @GetMapping
     public List<Soporte> listar() {
         return  soporteService.getAllSoportes();
     }
     @GetMapping("/{id}")
-    public Soporte getSoporte(@PathVariable int id) {
+    public String getSoporte(@PathVariable int id) {
         return soporteService.getSoporte(id);
     }
     @PostMapping
@@ -30,7 +30,7 @@ class SoporteController {
     public String updateSoporte(@RequestBody Soporte soporte, @PathVariable int id){
         return soporteService.updateSoporte(id,soporte );
     }
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id]")
     public String deleteSoporte(@PathVariable int id) {
        return  soporteService.deleteSoporte(id);
     }

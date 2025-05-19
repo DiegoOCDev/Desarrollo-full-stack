@@ -15,13 +15,13 @@ import java.util.List;
 class CursoController {
     @Autowired
     private CursoService cursoService;
-    @GetMapping("/GetAll")
+    @GetMapping
     public List<Curso> getCursos(){
         return cursoService.getAllCursos();
     }
 
     @GetMapping("/{id}")
-    public Curso getCurso(@PathVariable Integer id) {
+    public String getCurso(@PathVariable Integer id) {
         return cursoService.getCurso(id);
     }
     @PostMapping

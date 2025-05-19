@@ -1,7 +1,9 @@
 package com.API.API.service;
 import java.util.List;
 
+import com.API.API.model.Evaluacion;
 import com.API.API.model.Instructor;
+import com.API.API.repository.EvaluacionRepository;
 import org.springframework.stereotype.Service;
 import com.API.API.repository.InstructorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,14 +41,14 @@ public class InstructorService {
 
     }
 
-    public Instructor getInstructor(int id) {
+    public String getInstructor(int id) {
         String output = "";
         if (repository.existsById(id)) {
             Instructor instructor = repository.findById(id).get();
             output = instructor.toString();
-            return instructor;
+            return output;
         } else {
-            return null;
+            return "No se encuentra";
         }
     }
 

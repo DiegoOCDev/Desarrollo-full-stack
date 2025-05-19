@@ -1,6 +1,7 @@
 package com.API.API.service;
 import java.util.List;
 
+import com.API.API.model.Evaluacion;
 import com.API.API.model.Gerente;
 import com.API.API.repository.GerenteRepository;
 import org.springframework.stereotype.Service;
@@ -34,14 +35,14 @@ public class GerenteService {
         }
 
     }
-    public Gerente getGerente(int id){
+    public String getGerente(int id){
         String output="";
         if(repository.existsById(id)){
-            Gerente gerente = repository.findById(id).get();
-            output = gerente.toString();
-            return gerente;
+            Gerente evaluacion = repository.findById(id).get();
+            output = evaluacion.toString();
+            return output;
         }else{
-            return null;
+            return "No se encuentra";
         }
     }
     public List<Gerente> getAllGerentes() {

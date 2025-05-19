@@ -1,11 +1,11 @@
 package com.API.API.service;
+import java.util.List;
 
 import com.API.API.model.Admin;
+import org.springframework.stereotype.Service;
 import com.API.API.repository.AdminRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import java.util.List;
 @Service
 public class AdminService {
  @Autowired
@@ -35,19 +35,17 @@ public class AdminService {
      }
 
  }
-    public Admin getAdmin(int id){
+    public String getAdmin(int id){
         String output="";
         if(repository.existsById(id)){
             Admin  clase = repository.findById(id).get();
             output = clase.toString();
-            return clase;
+            return output;
         }else{
-            return null;
+            return "No se encuentra";
         }
     }
 public List<Admin> getAllAdmins() {
-
-      return repository.findAll();
-
+     return repository.findAll();
 }
 }

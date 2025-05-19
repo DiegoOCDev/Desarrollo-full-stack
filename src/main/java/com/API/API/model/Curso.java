@@ -13,7 +13,7 @@ import java.time.LocalDate;
 public class Curso {
     @Id
     @Column(name = "idCurso", nullable = false)
-    private Integer idCurso;
+    private Integer id;
 
     @Column(name = "tituloCurso", nullable = false, length = 100)
     private String tituloCurso;

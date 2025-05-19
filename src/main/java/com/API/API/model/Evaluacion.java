@@ -11,7 +11,7 @@ import lombok.Setter;
 public class Evaluacion {
     @Id
     @Column(name = "idEvaluacion", nullable = false)
-    private Integer idEvaluacion;
+    private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idCurso")

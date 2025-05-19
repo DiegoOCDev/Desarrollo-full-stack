@@ -14,12 +14,12 @@ import java.util.List;
 class InstructorController {
     @Autowired
     private InstructorService instructorService;
-    @GetMapping("/GetAll")
+    @GetMapping
     public List<Instructor> getAllInstructors() {
         return instructorService.getAllIntructores();
     }
     @GetMapping("/{id}")
-    public Instructor  getInstructorById(@PathVariable int id) {
+    public String  getInstructorById(@PathVariable int id) {
         return instructorService.getInstructor(id);
     }
     @PostMapping
@@ -30,7 +30,7 @@ class InstructorController {
     public String updateInstructor(@PathVariable int id, @RequestBody Instructor instructor) {
        return instructorService.updateInstructor(id ,instructor);
     }
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id]")
     public String deleteInstructor(@PathVariable int id) {
         return instructorService.deleteInstructor(id);
     }

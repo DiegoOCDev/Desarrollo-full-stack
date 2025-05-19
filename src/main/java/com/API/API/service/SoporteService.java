@@ -1,7 +1,9 @@
 package com.API.API.service;
 import java.util.List;
 
+import com.API.API.model.Reporte;
 import com.API.API.model.Soporte;
+import com.API.API.repository.ReporteRepository;
 import org.springframework.stereotype.Service;
 import com.API.API.repository.SoporteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,13 +41,14 @@ public class SoporteService {
 
     }
 
-    public Soporte getSoporte(int id) {
+    public String getSoporte(int id) {
         String output = "";
         if (repository.existsById(id)) {
             Soporte soporte = repository.findById(id).get();
-            return soporte;
+            output = soporte.toString();
+            return output;
         } else {
-            return null;
+            return "No se encuentra";
         }
     }
 

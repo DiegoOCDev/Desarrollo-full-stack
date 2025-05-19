@@ -1,7 +1,9 @@
 package com.API.API.service;
 import java.util.List;
 
+import com.API.API.model.Admin;
 import com.API.API.model.Curso;
+import com.API.API.repository.AdminRepository;
 import org.springframework.stereotype.Service;
 import com.API.API.repository.CursoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,14 +39,14 @@ public class CursoService {
         }
 
     }
-    public Curso getCurso(int id){
+    public String getCurso(int id){
         String output="";
         if(repository.existsById(id)){
             Curso  clase = repository.findById(id).get();
             output = clase.toString();
-            return clase;
+            return output;
         }else{
-            return null;
+            return "No se encuentra";
         }
     }
     public List<Curso> getAllCursos() {

@@ -14,12 +14,12 @@ import java.util.List;
 class EstudianteController {
     @Autowired
     EstudianteService estudianteService;
-    @GetMapping("/GetAll")
+    @GetMapping
     public List<Estudiante> getEstudiantes() {
         return estudianteService.getAllEstudiantes();
     }
     @GetMapping("/{id}")
-    public Estudiante getEstudiante(@PathVariable int id) {
+    public String getEstudiante(@PathVariable int id) {
         return estudianteService.getEstudiante(id);
     }
     @PutMapping("/{id}")

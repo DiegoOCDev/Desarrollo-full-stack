@@ -14,12 +14,12 @@ import java.util.List;
 class EvaluacionController {
     @Autowired
     EvaluacionService evaluacionService;
-    @GetMapping("/GetAll")
+    @GetMapping
     public List<Evaluacion> getEvaluacions() {
         return evaluacionService.getAllEvaluaciones();
     }
     @GetMapping("/{id}")
-    public Evaluacion getEvaluacion(@PathVariable int id) {
+    public String getEvaluacion(@PathVariable int id) {
         return evaluacionService.getEvaluacion(id);
     }
     @PostMapping

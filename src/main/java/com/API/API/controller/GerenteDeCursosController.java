@@ -14,12 +14,12 @@ import java.util.List;
 class GerenteDeCursosController {
     @Autowired
     GerenteService gerenteService;
-    @GetMapping("/GetAll")
+    @GetMapping
     public List<Gerente> getGerenteDeCursos(){
         return gerenteService.getAllGerentes();
     }
     @GetMapping("/{id}")
-    public Gerente getGerenteDeCursos(@PathVariable int id) {
+    public String getGerenteDeCursos(@PathVariable int id) {
         return gerenteService.getGerente(id);
     }
     @PostMapping
@@ -30,7 +30,7 @@ class GerenteDeCursosController {
     public String updateGerenteDeCursos(@PathVariable int id, @RequestBody Gerente gerenteDeCursos) {
         return gerenteService.updateGerente(id, gerenteDeCursos);
     }
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id]")
     public String deleteGerenteDeCursos(@PathVariable int id) {
         return gerenteService.deleteGerente(id);
     }

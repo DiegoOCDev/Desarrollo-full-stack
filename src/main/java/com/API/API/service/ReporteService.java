@@ -1,7 +1,9 @@
 package com.API.API.service;
 import java.util.List;
 
+import com.API.API.model.Instructor;
 import com.API.API.model.Reporte;
+import com.API.API.repository.InstructorRepository;
 import org.springframework.stereotype.Service;
 import com.API.API.repository.ReporteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,14 +43,14 @@ public class ReporteService {
 
     }
 
-    public Reporte getReporte(int id) {
+    public String getReporte(int id) {
         String output = "";
         if (repository.existsById(id)) {
             Reporte reporte = repository.findById(id).get();
             output = reporte.toString();
-            return reporte;
+            return output;
         } else {
-            return null;
+            return "No se encuentra";
         }
     }
 

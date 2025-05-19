@@ -13,12 +13,12 @@ import java.util.List;
 class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
-    @GetMapping("/GetAll")
+    @GetMapping
     public List<Usuario> listar() {
         return  usuarioService.getAllUsuarios();
     }
     @GetMapping("/{id}")
-    public Usuario getUsuario(@PathVariable int id) {
+    public String getUsuario(@PathVariable int id) {
         return usuarioService.getUsuario(id);
     }
     @PostMapping
@@ -29,7 +29,7 @@ class UsuarioController {
     public String updateUsuario(@PathVariable int id, @RequestBody Usuario usuario) {
         return usuarioService.updateUsuario(id, usuario);
     }
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id]")
     public String deleteUsuario(@PathVariable int id) {
         return usuarioService.deleteUsuario(id);
     }

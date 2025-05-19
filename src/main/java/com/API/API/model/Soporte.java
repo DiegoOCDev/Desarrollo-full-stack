@@ -14,7 +14,7 @@ import lombok.Setter;
 public class Soporte {
     @Id
     @Column(name = "idSoporte", nullable = false)
-    private Integer idSoporte;
+    private Integer id;
 
     @Column(name = "correoSoporte", nullable = false, length = 100)
     private String correoSoporte;

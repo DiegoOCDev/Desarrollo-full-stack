@@ -14,7 +14,7 @@ import lombok.Setter;
 public class Usuario {
     @Id
     @Column(name = "idUsuario", nullable = false)
-    private Integer idUsuario;
+    private Integer id;
 
     @Column(name = "nombreUsuario", nullable = false, length = 100)
     private String nombreUsuario;

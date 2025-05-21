@@ -1,9 +1,7 @@
 package com.API.API.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,6 +12,8 @@ import lombok.Setter;
 public class Estudiante {
     @Id
     @Column(name = "idEstudiante", nullable = false)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+
     private Integer id;
 
     @Column(name = "nombreEstudiante", nullable = false, length = 100)
@@ -21,5 +21,9 @@ public class Estudiante {
 
     @Column(name = "correoEstudiante", nullable = false, length = 100)
     private String correoEstudiante;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "idUsuario", nullable = false)
+    private Usuario idUsuario;
 
 }

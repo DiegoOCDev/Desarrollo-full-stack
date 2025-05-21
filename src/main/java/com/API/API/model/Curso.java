@@ -1,5 +1,7 @@
 package com.API.API.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,7 +14,10 @@ import java.time.LocalDate;
 @Table(name = "curso")
 public class Curso {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idCurso", nullable = false)
+    @JsonIgnore
+
     private Integer id;
 
     @Column(name = "tituloCurso", nullable = false, length = 100)
@@ -30,8 +35,8 @@ public class Curso {
     @Column(name = "fecha_fin")
     private LocalDate fechaFin;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idGerente")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "idGerente", nullable = false)
     private Gerente idGerente;
 
 }

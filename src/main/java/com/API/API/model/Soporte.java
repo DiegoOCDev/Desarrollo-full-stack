@@ -1,5 +1,7 @@
 package com.API.API.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -14,6 +16,8 @@ import lombok.Setter;
 public class Soporte {
     @Id
     @Column(name = "idSoporte", nullable = false)
+    @JsonIgnore
+
     private Integer id;
 
     @Column(name = "correoSoporte", nullable = false, length = 100)

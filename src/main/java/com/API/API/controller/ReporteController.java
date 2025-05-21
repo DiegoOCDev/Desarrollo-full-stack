@@ -30,7 +30,7 @@ class ReporteController {
     public String updateReporte(@PathVariable int id, @RequestBody Reporte reporte) {
         return reporteService.updateReporte(id,reporte);
     }
-    @DeleteMapping("/{id]")
+    @DeleteMapping("/{id}")
     public String deleteReporte(@PathVariable int id) {
         return reporteService.deleteReporte(id);
     }

@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class EstudianteService {
     @Autowired
     private EstudianteRepository repository;
+
     public Estudiante addEstudiante(Estudiante estudiante) {
         repository.save(estudiante);
         return estudiante;

@@ -30,7 +30,7 @@ class GerenteDeCursosController {
     public String updateGerenteDeCursos(@PathVariable int id, @RequestBody Gerente gerenteDeCursos) {
         return gerenteService.updateGerente(id, gerenteDeCursos);
     }
-    @DeleteMapping("/{id]")
+    @DeleteMapping("/{id}")
     public String deleteGerenteDeCursos(@PathVariable int id) {
         return gerenteService.deleteGerente(id);
     }

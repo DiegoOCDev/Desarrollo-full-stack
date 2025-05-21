@@ -30,7 +30,7 @@ class SoporteController {
     public String updateSoporte(@RequestBody Soporte soporte, @PathVariable int id){
         return soporteService.updateSoporte(id,soporte );
     }
-    @DeleteMapping("/{id]")
+    @DeleteMapping("/{id}")
     public String deleteSoporte(@PathVariable int id) {
        return  soporteService.deleteSoporte(id);
     }

@@ -30,7 +30,7 @@ class InstructorController {
     public String updateInstructor(@PathVariable int id, @RequestBody Instructor instructor) {
        return instructorService.updateInstructor(id ,instructor);
     }
-    @DeleteMapping("/{id]")
+    @DeleteMapping("/{id}")
     public String deleteInstructor(@PathVariable int id) {
         return instructorService.deleteInstructor(id);
     }

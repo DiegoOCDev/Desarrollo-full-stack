@@ -22,14 +22,14 @@ class UsuarioController {
     public String getUsuario(@PathVariable int id) {
         return usuarioService.getUsuario(id);
     }
-    @GetMapping("/SingUp")
+    @PostMapping("/SingUp")
     public Usuario SingUp(@RequestBody LoginRequest form) {
-        String contrasena = form.getPassword();
+        String con = form.getPassword();
         String usuario = form.getUsername();
         List<Usuario> usuarios = usuarioService.getAllUsuarios();
         for (Usuario usuario1 : usuarios) {
             if(usuario1.getEmailUsuario().equals(usuario)) {
-                if(usuario1.getContrasenaUsuario().equals(contrasena) ) {
+                if(usuario1.getContrasenaUsuario().equals(con) ) {
                     return usuario1;
                 }
             }

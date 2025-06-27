@@ -1,38 +1,61 @@
-
 package com.API.API;
 
 import com.API.API.model.Estudiante;
 import com.API.API.model.Usuario;
 import com.API.API.repository.EstudianteRepository;
 import com.API.API.service.EstudianteService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-        import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
+@AutoConfigureMockMvc
+
 public class EstudianteTest {
 
     @MockitoBean
     private EstudianteRepository estudianteRepository;
 
-    @MockitoBean
+    @Autowired
     private EstudianteService estudianteService;
 
-    @Test
-    void testAddEstudiante() {
+    @Autowired
+    private MockMvc mockMvc;
+
+    private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+
+    private Estudiante crearEstudianteDummy() {
         Estudiante est = new Estudiante();
+        est.setId(1);
         est.setNombreEstudiante("Juan Perez");
         est.setCorreoEstudiante("juan@mail.com");
-        est.setIdUsuario(new Usuario()); // Puedes crear un Usuario dummy si quieres
+        est.setIdUsuario(new Usuario()); // si quieres puedes crear un dummy Usuario aquí
+        return est;
+    }
 
-        when(estudianteRepository.save(est)).thenReturn(est);
+    @Test
+    @DisplayName("Agregar Estudiante")
+    void testAddEstudiante() {
+        Estudiante est = crearEstudianteDummy();
+
+        when(estudianteRepository.save(any(Estudiante.class))).thenReturn(est);
 
         Estudiante resultado = estudianteService.addEstudiante(est);
 
@@ -41,6 +64,7 @@ public class EstudianteTest {
     }
 
     @Test
+    @DisplayName("Eliminar Estudiante existente")
     void testDeleteEstudianteExistente() {
         when(estudianteRepository.existsById(1)).thenReturn(true);
 
@@ -51,6 +75,7 @@ public class EstudianteTest {
     }
 
     @Test
+    @DisplayName("Eliminar Estudiante inexistente")
     void testDeleteEstudianteInexistente() {
         when(estudianteRepository.existsById(99)).thenReturn(false);
 
@@ -61,12 +86,13 @@ public class EstudianteTest {
     }
 
     @Test
+    @DisplayName("Actualizar Estudiante existente")
     void testUpdateEstudianteExistente() {
-        Estudiante viejo = new Estudiante();
+        Estudiante viejo = crearEstudianteDummy();
         viejo.setNombreEstudiante("Viejo Nombre");
         viejo.setCorreoEstudiante("viejo@mail.com");
 
-        Estudiante nuevo = new Estudiante();
+        Estudiante nuevo = crearEstudianteDummy();
         nuevo.setNombreEstudiante("Nuevo Nombre");
         nuevo.setCorreoEstudiante("nuevo@mail.com");
 
@@ -82,10 +108,9 @@ public class EstudianteTest {
     }
 
     @Test
+    @DisplayName("Actualizar Estudiante inexistente")
     void testUpdateEstudianteInexistente() {
-        Estudiante nuevo = new Estudiante();
-        nuevo.setNombreEstudiante("Nombre");
-        nuevo.setCorreoEstudiante("correo@mail.com");
+        Estudiante nuevo = crearEstudianteDummy();
 
         when(estudianteRepository.existsById(1)).thenReturn(false);
 
@@ -96,35 +121,36 @@ public class EstudianteTest {
     }
 
     @Test
+    @DisplayName("Obtener Estudiante existente")
     void testGetEstudianteExistente() {
-        Estudiante est = new Estudiante();
-        est.setNombreEstudiante("Estudiante Existente");
-        est.setCorreoEstudiante("estudiante@mail.com");
+        Estudiante est = crearEstudianteDummy();
 
         when(estudianteRepository.existsById(1)).thenReturn(true);
         when(estudianteRepository.findById(1)).thenReturn(Optional.of(est));
 
-        String resultado = estudianteService.getEstudiante(1);
+        Estudiante resultado = estudianteService.getEstudiante(1);
 
-        assertEquals(est.toString(), resultado);
+        assertEquals(est, resultado);
     }
 
     @Test
+    @DisplayName("Obtener Estudiante inexistente")
     void testGetEstudianteInexistente() {
         when(estudianteRepository.existsById(1)).thenReturn(false);
 
-        String resultado = estudianteService.getEstudiante(1);
+        Estudiante resultado = estudianteService.getEstudiante(1);
 
-        assertEquals("No se encuentra", resultado);
+        assertNull(resultado);
     }
 
     @Test
+    @DisplayName("Obtener todos los Estudiantes")
     void testGetAllEstudiantes() {
-        Estudiante e1 = new Estudiante();
-        e1.setNombreEstudiante("Est1");
+        Estudiante e1 = crearEstudianteDummy();
+        e1.setNombreEstudiante("Estudiante 1");
 
-        Estudiante e2 = new Estudiante();
-        e2.setNombreEstudiante("Est2");
+        Estudiante e2 = crearEstudianteDummy();
+        e2.setNombreEstudiante("Estudiante 2");
 
         List<Estudiante> lista = Arrays.asList(e1, e2);
 
@@ -133,6 +159,24 @@ public class EstudianteTest {
         List<Estudiante> resultado = estudianteService.getAllEstudiantes();
 
         assertEquals(2, resultado.size());
-        assertEquals("Est1", resultado.get(0).getNombreEstudiante());
+        assertEquals("Estudiante 1", resultado.get(0).getNombreEstudiante());
+    }
+
+    @Test
+    @DisplayName("Test Controller GET /Estudiantes")
+    void testGetAllEstudiantesController() throws Exception {
+        Estudiante e1 = crearEstudianteDummy();
+        e1.setNombreEstudiante("Estudiante 1");
+        Estudiante e2 = crearEstudianteDummy();
+        e2.setNombreEstudiante("Estudiante 2");
+
+        List<Estudiante> lista = Arrays.asList(e1, e2);
+        when(estudianteService.getAllEstudiantes()).thenReturn(lista);
+
+        mockMvc.perform(get("/Estudiantes")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(lista.size()))
+                .andExpect(jsonPath("$[0].nombreEstudiante").value("Estudiante 1"));
     }
 }

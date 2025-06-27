@@ -41,14 +41,14 @@ public class SoporteService {
 
     }
 
-    public String getSoporte(int id) {
+    public Soporte getSoporte(int id) {
         String output = "";
         if (repository.existsById(id)) {
             Soporte soporte = repository.findById(id).get();
             output = soporte.toString();
-            return output;
+            return soporte;
         } else {
-            return "No se encuentra";
+            return null;
         }
     }
 

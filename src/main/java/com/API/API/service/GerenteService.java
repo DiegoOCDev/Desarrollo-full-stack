@@ -35,14 +35,14 @@ public class GerenteService {
         }
 
     }
-    public String getGerente(int id){
+    public Gerente getGerente(int id){
         String output="";
         if(repository.existsById(id)){
-            Gerente evaluacion = repository.findById(id).get();
-            output = evaluacion.toString();
-            return output;
+            Gerente ger = repository.findById(id).get();
+            output = ger.toString();
+            return ger;
         }else{
-            return "No se encuentra";
+            return null;
         }
     }
     public List<Gerente> getAllGerentes() {

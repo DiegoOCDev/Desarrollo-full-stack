@@ -39,14 +39,14 @@ public class CursoService {
         }
 
     }
-    public String getCurso(int id){
+    public Curso getCurso(int id){
         String output="";
         if(repository.existsById(id)){
             Curso  clase = repository.findById(id).get();
             output = clase.toString();
-            return output;
+            return clase;
         }else{
-            return "No se encuentra";
+            return null;
         }
     }
     public List<Curso> getAllCursos() {

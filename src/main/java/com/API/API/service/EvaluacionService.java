@@ -34,14 +34,14 @@ public class EvaluacionService {
         }
 
     }
-    public String getEvaluacion(int id){
+    public Evaluacion getEvaluacion(int id){
         String output="";
         if(repository.existsById(id)){
             Evaluacion  evaluacion = repository.findById(id).get();
             output = evaluacion.toString();
-            return output;
+            return evaluacion;
         }else{
-            return "No se encuentra";
+            return null;
         }
     }
     public List<Evaluacion> getAllEvaluaciones() {

@@ -3,9 +3,15 @@ package com.API.API;
 import com.API.API.model.Soporte;
 import com.API.API.repository.SoporteRepository;
 import com.API.API.service.SoporteService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
 import java.util.List;
@@ -13,15 +19,24 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
+@AutoConfigureMockMvc
+
 public class SoporteTest {
 
     @MockitoBean
     private SoporteRepository soporteRepository;
 
-    @MockitoBean
+    @Autowired
     private SoporteService soporteService;
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private Soporte crearSoporteDummy() {
         Soporte soporte = new Soporte();
@@ -30,7 +45,10 @@ public class SoporteTest {
         return soporte;
     }
 
+    // ==== Pruebas de Servicio ====
+
     @Test
+    @DisplayName("Agregar soporte - Servicio")
     void testAddSoporte() {
         Soporte soporte = crearSoporteDummy();
 
@@ -43,6 +61,7 @@ public class SoporteTest {
     }
 
     @Test
+    @DisplayName("Eliminar soporte existente - Servicio")
     void testDeleteSoporteExistente() {
         when(soporteRepository.existsById(1)).thenReturn(true);
 
@@ -53,6 +72,7 @@ public class SoporteTest {
     }
 
     @Test
+    @DisplayName("Eliminar soporte inexistente - Servicio")
     void testDeleteSoporteInexistente() {
         when(soporteRepository.existsById(1)).thenReturn(false);
 
@@ -63,6 +83,7 @@ public class SoporteTest {
     }
 
     @Test
+    @DisplayName("Actualizar soporte existente - Servicio")
     void testUpdateSoporteExistente() {
         Soporte viejo = crearSoporteDummy();
         viejo.setNombreSoporte("Antiguo");
@@ -83,6 +104,7 @@ public class SoporteTest {
     }
 
     @Test
+    @DisplayName("Actualizar soporte inexistente - Servicio")
     void testUpdateSoporteInexistente() {
         Soporte nuevo = crearSoporteDummy();
 
@@ -95,27 +117,30 @@ public class SoporteTest {
     }
 
     @Test
+    @DisplayName("Obtener soporte existente - Servicio")
     void testGetSoporteExistente() {
         Soporte soporte = crearSoporteDummy();
 
         when(soporteRepository.existsById(1)).thenReturn(true);
         when(soporteRepository.findById(1)).thenReturn(Optional.of(soporte));
 
-        String resultado = soporteService.getSoporte(1);
+        Soporte resultado = soporteService.getSoporte(1);
 
-        assertEquals(soporte.toString(), resultado);
+        assertEquals(soporte, resultado);
     }
 
     @Test
+    @DisplayName("Obtener soporte inexistente - Servicio")
     void testGetSoporteInexistente() {
         when(soporteRepository.existsById(1)).thenReturn(false);
 
-        String resultado = soporteService.getSoporte(1);
+        Soporte resultado = soporteService.getSoporte(1);
 
-        assertEquals("No se encuentra", resultado);
+        assertNull(resultado);
     }
 
     @Test
+    @DisplayName("Obtener todos los soportes - Servicio")
     void testGetAllSoportes() {
         Soporte s1 = crearSoporteDummy();
         Soporte s2 = crearSoporteDummy();
@@ -130,5 +155,61 @@ public class SoporteTest {
         assertEquals(2, resultado.size());
         assertEquals("Pedro Soporte", resultado.get(0).getNombreSoporte());
         assertEquals("Sofía Ayuda", resultado.get(1).getNombreSoporte());
+    }
+
+    // ==== Pruebas Controlador ====
+
+    @Test
+    @DisplayName("GET /Soportes - Obtener todos los soportes")
+    void testGetAllSoportesController() throws Exception {
+        List<Soporte> lista = Arrays.asList(crearSoporteDummy(), crearSoporteDummy());
+        when(soporteRepository.findAll()).thenReturn(lista);
+
+        mockMvc.perform(get("/Soportes"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(lista.size()));
+    }
+
+    @Test
+    @DisplayName("GET /Soportes/{id} - Soporte existente")
+    void testGetSoportePorIdControllerExistente() throws Exception {
+        Soporte soporte = crearSoporteDummy();
+        when(soporteRepository.existsById(1)).thenReturn(true);
+        when(soporteRepository.findById(1)).thenReturn(Optional.of(soporte));
+
+        mockMvc.perform(get("/Soportes/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.nombreSoporte").value("Pedro Soporte"));
+    }
+
+    @Test
+    @DisplayName("POST /Soportes - Crear soporte")
+    void testAddSoporteController() throws Exception {
+        Soporte soporte = crearSoporteDummy();
+        when(soporteRepository.save(any())).thenReturn(soporte);
+
+        mockMvc.perform(post("/Soportes")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(soporte)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.nombreSoporte").value("Pedro Soporte"));
+    }
+
+    @Test
+    @DisplayName("PUT /Soportes/{id} - Actualizar soporte")
+    void testUpdateSoporteController() throws Exception {
+        Soporte viejo = crearSoporteDummy();
+        Soporte nuevo = crearSoporteDummy();
+        nuevo.setNombreSoporte("Actualizado");
+
+        when(soporteRepository.existsById(1)).thenReturn(true);
+        when(soporteRepository.findById(1)).thenReturn(Optional.of(viejo));
+        when(soporteRepository.save(any())).thenReturn(viejo);
+
+        mockMvc.perform(put("/Soportes/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(nuevo)))
+                .andExpect(status().isOk())
+                .andExpect(content().string(" actualizado con exito"));
     }
 }

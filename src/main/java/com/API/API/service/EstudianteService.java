@@ -36,14 +36,14 @@ public class EstudianteService {
         }
 
     }
-    public String getEstudiante(int id){
+    public Estudiante getEstudiante(int id){
         String output="";
         if(repository.existsById(id)){
             Estudiante  estudiante = repository.findById(id).get();
             output = estudiante.toString();
-            return output;
+            return estudiante;
         }else{
-            return "No se encuentra";
+            return null;
         }
     }
     public List<Estudiante> getAllEstudiantes() {

@@ -41,14 +41,14 @@ public class InstructorService {
 
     }
 
-    public String getInstructor(int id) {
+    public Instructor getInstructor(int id) {
         String output = "";
         if (repository.existsById(id)) {
             Instructor instructor = repository.findById(id).get();
             output = instructor.toString();
-            return output;
+            return instructor;
         } else {
-            return "No se encuentra";
+            return null;
         }
     }
 

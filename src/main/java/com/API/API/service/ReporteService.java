@@ -43,14 +43,14 @@ public class ReporteService {
 
     }
 
-    public String getReporte(int id) {
+    public Reporte getReporte(int id) {
         String output = "";
         if (repository.existsById(id)) {
             Reporte reporte = repository.findById(id).get();
             output = reporte.toString();
-            return output;
+            return reporte;
         } else {
-            return "No se encuentra";
+            return null;
         }
     }
 

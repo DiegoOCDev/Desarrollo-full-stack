@@ -6,9 +6,15 @@ import com.API.API.model.Evaluacion;
 import com.API.API.model.Instructor;
 import com.API.API.repository.EvaluacionRepository;
 import com.API.API.service.EvaluacionService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
 import java.util.List;
@@ -16,15 +22,24 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
+@AutoConfigureMockMvc
+
 public class EvaluacionTest {
 
     @MockitoBean
     private EvaluacionRepository evaluacionRepository;
 
-    @MockitoBean
+    @Autowired
     private EvaluacionService evaluacionService;
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private Evaluacion crearEvaluacionDummy() {
         Evaluacion eval = new Evaluacion();
@@ -35,10 +50,12 @@ public class EvaluacionTest {
         return eval;
     }
 
+    // ===== Pruebas Servicio =====
+
     @Test
+    @DisplayName("Agregar Evaluacion - Servicio")
     void testAddEvaluacion() {
         Evaluacion evaluacion = crearEvaluacionDummy();
-
         when(evaluacionRepository.save(evaluacion)).thenReturn(evaluacion);
 
         Evaluacion resultado = evaluacionService.addEvaluacion(evaluacion);
@@ -48,6 +65,7 @@ public class EvaluacionTest {
     }
 
     @Test
+    @DisplayName("Eliminar Evaluacion existente - Servicio")
     void testDeleteEvaluacionExistente() {
         when(evaluacionRepository.existsById(1)).thenReturn(true);
 
@@ -58,6 +76,7 @@ public class EvaluacionTest {
     }
 
     @Test
+    @DisplayName("Eliminar Evaluacion inexistente - Servicio")
     void testDeleteEvaluacionInexistente() {
         when(evaluacionRepository.existsById(1)).thenReturn(false);
 
@@ -68,10 +87,10 @@ public class EvaluacionTest {
     }
 
     @Test
+    @DisplayName("Actualizar Evaluacion existente - Servicio")
     void testUpdateEvaluacionExistente() {
         Evaluacion viejo = crearEvaluacionDummy();
         viejo.setNotaEvaluacion(60);
-
         Evaluacion nuevo = crearEvaluacionDummy();
         nuevo.setNotaEvaluacion(95);
 
@@ -86,6 +105,7 @@ public class EvaluacionTest {
     }
 
     @Test
+    @DisplayName("Actualizar Evaluacion inexistente - Servicio")
     void testUpdateEvaluacionInexistente() {
         Evaluacion nuevo = crearEvaluacionDummy();
         nuevo.setNotaEvaluacion(100);
@@ -99,31 +119,33 @@ public class EvaluacionTest {
     }
 
     @Test
+    @DisplayName("Obtener Evaluacion existente - Servicio")
     void testGetEvaluacionExistente() {
         Evaluacion evaluacion = crearEvaluacionDummy();
 
         when(evaluacionRepository.existsById(1)).thenReturn(true);
         when(evaluacionRepository.findById(1)).thenReturn(Optional.of(evaluacion));
 
-        String resultado = evaluacionService.getEvaluacion(1);
+        Evaluacion resultado = evaluacionService.getEvaluacion(1);
 
-        assertEquals(evaluacion.toString(), resultado);
+        assertEquals(evaluacion, resultado);
     }
 
     @Test
+    @DisplayName("Obtener Evaluacion inexistente - Servicio")
     void testGetEvaluacionInexistente() {
         when(evaluacionRepository.existsById(1)).thenReturn(false);
 
-        String resultado = evaluacionService.getEvaluacion(1);
+        Evaluacion resultado = evaluacionService.getEvaluacion(1);
 
-        assertEquals("No se encuentra", resultado);
+        assertNull(resultado);
     }
 
     @Test
+    @DisplayName("Obtener todas las Evaluaciones - Servicio")
     void testGetAllEvaluaciones() {
         Evaluacion e1 = crearEvaluacionDummy();
         e1.setNotaEvaluacion(70);
-
         Evaluacion e2 = crearEvaluacionDummy();
         e2.setNotaEvaluacion(90);
 
@@ -136,5 +158,61 @@ public class EvaluacionTest {
         assertEquals(2, resultado.size());
         assertEquals(70, resultado.get(0).getNotaEvaluacion());
         assertEquals(90, resultado.get(1).getNotaEvaluacion());
+    }
+
+    // ===== Pruebas Controlador =====
+
+    @Test
+    @DisplayName("GET /Evaluacions - Obtener todas las evaluaciones")
+    void testGetAllEvaluacionesController() throws Exception {
+        List<Evaluacion> lista = Arrays.asList(crearEvaluacionDummy(), crearEvaluacionDummy());
+        when(evaluacionRepository.findAll()).thenReturn(lista);
+
+        mockMvc.perform(get("/Evaluacions"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(lista.size()));
+    }
+
+    @Test
+    @DisplayName("GET /Evaluacions/{id} - Evaluacion existente")
+    void testGetEvaluacionPorIdControllerExistente() throws Exception {
+        Evaluacion eval = crearEvaluacionDummy();
+        when(evaluacionRepository.existsById(1)).thenReturn(true);
+        when(evaluacionRepository.findById(1)).thenReturn(Optional.of(eval));
+
+        mockMvc.perform(get("/Evaluacions/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.notaEvaluacion").value(85));
+    }
+
+    @Test
+    @DisplayName("POST /Evaluacions - Crear evaluación")
+    void testAddEvaluacionController() throws Exception {
+        Evaluacion eval = crearEvaluacionDummy();
+        when(evaluacionRepository.save(any())).thenReturn(eval);
+
+        mockMvc.perform(post("/Evaluacions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(eval)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.notaEvaluacion").value(85));
+    }
+
+    @Test
+    @DisplayName("PUT /Evaluacions/{id} - Actualizar evaluación")
+    void testUpdateEvaluacionController() throws Exception {
+        Evaluacion viejo = crearEvaluacionDummy();
+        Evaluacion nuevo = crearEvaluacionDummy();
+        nuevo.setNotaEvaluacion(99);
+
+        when(evaluacionRepository.existsById(1)).thenReturn(true);
+        when(evaluacionRepository.findById(1)).thenReturn(Optional.of(viejo));
+        when(evaluacionRepository.save(any())).thenReturn(viejo);
+
+        mockMvc.perform(put("/Evaluacions/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(nuevo)))
+                .andExpect(status().isOk())
+                .andExpect(content().string(" actualizado con exito"));
     }
 }

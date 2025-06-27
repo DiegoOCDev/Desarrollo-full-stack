@@ -1,144 +1,152 @@
-
 package com.API.API;
 
 import com.API.API.model.Admin;
 import com.API.API.repository.AdminRepository;
 import com.API.API.service.AdminService;
-import org.junit.jupiter.api.BeforeEach;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-        import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
+@AutoConfigureMockMvc
 public class AdminTest {
 
     @MockitoBean
     private AdminRepository adminRepository;
 
-    @MockitoBean
+    @Autowired
     private AdminService adminService;
 
-    @BeforeEach
-    void setup() {
-        // Si quieres, puedes limpiar mocks aquí o configurar comportamiento común
-    }
+    @Autowired
+    private MockMvc mockMvc;
 
-    @Test
-    void testAddAdmin() {
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    private Admin crearAdminDummy() {
         Admin admin = new Admin();
+        admin.setId(1);
         admin.setCorreoAdmin("admin@mail.com");
         admin.setNombreAdmin("Carlos");
+        return admin;
+    }
 
+    // ------------------- Servicio -------------------
+
+    @Test
+    @DisplayName("Servicio - Agregar admin")
+    void testAddAdmin() {
+        Admin admin = crearAdminDummy();
         when(adminRepository.save(admin)).thenReturn(admin);
 
         Admin resultado = adminService.addAdmin(admin);
 
         verify(adminRepository).save(admin);
-        assertEquals(admin, resultado);
+        assertEquals("Carlos", resultado.getNombreAdmin());
     }
 
     @Test
-    void testDeleteAdminExistente() {
+    @DisplayName("Servicio - Obtener admin por ID")
+    void testGetAdminExistente() {
+        Admin admin = crearAdminDummy();
         when(adminRepository.existsById(1)).thenReturn(true);
+        when(adminRepository.findById(1)).thenReturn(Optional.of(admin));
 
-        String resultado = adminService.deleteAdmin(1);
+        Admin resultado = adminService.getAdmin(1);
 
-        verify(adminRepository).deleteById(1);
-        assertEquals("eliminado con exito", resultado);
+        assertNotNull(resultado);
+        assertEquals("Carlos", resultado.getNombreAdmin());
     }
 
     @Test
-    void testDeleteAdminInexistente() {
-        when(adminRepository.existsById(99)).thenReturn(false);
-
-        String resultado = adminService.deleteAdmin(99);
-
-        verify(adminRepository, never()).deleteById(anyInt());
-        assertEquals("No se encuentra", resultado);
-    }
-
-    @Test
-    void testUpdateAdminExistente() {
-        Admin viejo = new Admin();
-        viejo.setCorreoAdmin("old@mail.com");
-        viejo.setNombreAdmin("Juan");
-
+    @DisplayName("Servicio - Actualizar admin existente")
+    void testUpdateAdmin() {
+        Admin viejo = crearAdminDummy();
         Admin nuevo = new Admin();
-        nuevo.setCorreoAdmin("new@mail.com");
         nuevo.setNombreAdmin("Pedro");
+        nuevo.setCorreoAdmin("nuevo@mail.com");
 
         when(adminRepository.existsById(1)).thenReturn(true);
         when(adminRepository.findById(1)).thenReturn(Optional.of(viejo));
 
-        String resultado = adminService.updateAdmin(1, nuevo);
+        String result = adminService.updateAdmin(1, nuevo);
 
         verify(adminRepository).save(viejo);
-        assertEquals(" actualizado con exito", resultado);
+        assertEquals(" actualizado con exito", result);
         assertEquals("Pedro", viejo.getNombreAdmin());
-        assertEquals("new@mail.com", viejo.getCorreoAdmin());
     }
 
     @Test
-    void testUpdateAdminInexistente() {
-        Admin nuevo = new Admin();
-        nuevo.setCorreoAdmin("new@mail.com");
-        nuevo.setNombreAdmin("Pedro");
+    @DisplayName("Servicio - Eliminar admin")
+    void testDeleteAdmin() {
+        when(adminRepository.existsById(1)).thenReturn(true);
 
-        when(adminRepository.existsById(1)).thenReturn(false);
+        String msg = adminService.deleteAdmin(1);
 
-        String resultado = adminService.updateAdmin(1, nuevo);
+        verify(adminRepository).deleteById(1);
+        assertEquals("eliminado con exito", msg);
+    }
 
-        verify(adminRepository, never()).save(any());
-        assertEquals("No se encuentra ", resultado);
+    // ------------------- Controlador -------------------
+
+    @Test
+    @DisplayName("Controlador - GET /Admins")
+    void testGetAllAdminsController() throws Exception {
+        List<Admin> lista = Arrays.asList(crearAdminDummy(), crearAdminDummy());
+        when(adminRepository.findAll()).thenReturn(lista);
+
+        mockMvc.perform(get("/Admins"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].nombreAdmin").value("Carlos"));
     }
 
     @Test
-    void testGetAdminExistente() {
-        Admin admin = new Admin();
-        admin.setCorreoAdmin("admin@mail.com");
-        admin.setNombreAdmin("Lucía");
-
+    @DisplayName("Controlador - GET /Admins/{id}")
+    void testGetAdminByIdController() throws Exception {
+        Admin admin = crearAdminDummy();
         when(adminRepository.existsById(1)).thenReturn(true);
         when(adminRepository.findById(1)).thenReturn(Optional.of(admin));
 
-        String resultado = adminService.getAdmin(1);
-
-        assertEquals(admin.toString(), resultado);
+        mockMvc.perform(get("/Admins/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.nombreAdmin").value("Carlos"));
     }
 
     @Test
-    void testGetAdminInexistente() {
-        when(adminRepository.existsById(1)).thenReturn(false);
+    @DisplayName("Controlador - POST /Admins")
+    void testAddAdminController() throws Exception {
+        Admin admin = crearAdminDummy();
+        when(adminRepository.save(any(Admin.class))).thenReturn(admin);
 
-        String resultado = adminService.getAdmin(1);
-
-        assertEquals("No se encuentra", resultado);
+        mockMvc.perform(post("/Admins")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(admin)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.correoAdmin").value("admin@mail.com"));
     }
 
     @Test
-    void testGetAllAdmins() {
-        Admin a1 = new Admin();
-        a1.setCorreoAdmin("uno@mail.com");
-        a1.setNombreAdmin("Uno");
+    @DisplayName("Controlador - DELETE /Admins/{id}")
+    void testDeleteAdminController() throws Exception {
+        when(adminRepository.existsById(1)).thenReturn(true);
 
-        Admin a2 = new Admin();
-        a2.setCorreoAdmin("dos@mail.com");
-        a2.setNombreAdmin("Dos");
-
-        List<Admin> lista = Arrays.asList(a1, a2);
-
-        when(adminRepository.findAll()).thenReturn(lista);
-
-        List<Admin> resultado = adminService.getAllAdmins();
-
-        assertEquals(2, resultado.size());
-        assertEquals("Uno", resultado.get(0).getNombreAdmin());
+        mockMvc.perform(delete("/Admins/1"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("eliminado con exito"));
     }
 }

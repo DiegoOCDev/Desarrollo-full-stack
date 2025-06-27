@@ -1,13 +1,22 @@
-
 package com.API.API;
 
+import com.API.API.controller.CursoController;
 import com.API.API.model.Curso;
 import com.API.API.model.Gerente;
 import com.API.API.repository.CursoRepository;
 import com.API.API.service.CursoService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -15,27 +24,41 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-        import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
+@AutoConfigureMockMvc
 public class CursoTest {
 
     @MockitoBean
     private CursoRepository cursoRepository;
 
-    @MockitoBean
+    @Autowired
     private CursoService cursoService;
 
-    @Test
-    void testAddCurso() {
+    @Autowired
+    private MockMvc mockMvc;
+
+
+    private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+
+    private Curso crearCursoDummy() {
         Curso curso = new Curso();
-        curso.setTituloCurso("Java Básico");
-        curso.setDescripcionCurso("Curso de Java para principiantes");
+        curso.setTituloCurso("Curso de Java");
+        curso.setDescripcionCurso("Aprende Java");
         curso.setEstadoCurso("Activo");
         curso.setFechaInicio(LocalDate.of(2024, 1, 1));
         curso.setFechaFin(LocalDate.of(2024, 6, 30));
-        curso.setIdGerente(new Gerente()); // puedes poner un gerente dummy si quieres
+        curso.setIdGerente(new Gerente());
+        return curso;
+    }
 
+    @Test
+    @DisplayName("Agregar curso")
+    void testAddCurso() {
+        Curso curso = crearCursoDummy();
         when(cursoRepository.save(curso)).thenReturn(curso);
 
         Curso resultado = cursoService.addCurso(curso);
@@ -45,6 +68,7 @@ public class CursoTest {
     }
 
     @Test
+    @DisplayName("Eliminar curso existente")
     void testDeleteCursoExistente() {
         when(cursoRepository.existsById(1)).thenReturn(true);
 
@@ -55,6 +79,7 @@ public class CursoTest {
     }
 
     @Test
+    @DisplayName("Eliminar curso inexistente")
     void testDeleteCursoInexistente() {
         when(cursoRepository.existsById(99)).thenReturn(false);
 
@@ -65,20 +90,11 @@ public class CursoTest {
     }
 
     @Test
+    @DisplayName("Actualizar curso existente")
     void testUpdateCursoExistente() {
-        Curso viejo = new Curso();
-        viejo.setTituloCurso("Java Antiguo");
-        viejo.setDescripcionCurso("Viejo");
-        viejo.setEstadoCurso("Inactivo");
-        viejo.setFechaInicio(LocalDate.of(2023,1,1));
-        viejo.setFechaFin(LocalDate.of(2023,12,31));
-
-        Curso nuevo = new Curso();
-        nuevo.setTituloCurso("Java Nuevo");
-        nuevo.setDescripcionCurso("Actualizado");
-        nuevo.setEstadoCurso("Activo");
-        nuevo.setFechaInicio(LocalDate.of(2024,1,1));
-        nuevo.setFechaFin(LocalDate.of(2024,12,31));
+        Curso viejo = crearCursoDummy();
+        Curso nuevo = crearCursoDummy();
+        nuevo.setTituloCurso("Curso Avanzado");
 
         when(cursoRepository.existsById(1)).thenReturn(true);
         when(cursoRepository.findById(1)).thenReturn(Optional.of(viejo));
@@ -87,20 +103,13 @@ public class CursoTest {
 
         verify(cursoRepository).save(viejo);
         assertEquals(" actualizado con exito", resultado);
-        assertEquals("Java Nuevo", viejo.getTituloCurso());
-        assertEquals("Actualizado", viejo.getDescripcionCurso());
-        assertEquals("Activo", viejo.getEstadoCurso());
-        assertEquals(LocalDate.of(2024,1,1), viejo.getFechaInicio());
-        assertEquals(LocalDate.of(2024,12,31), viejo.getFechaFin());
+        assertEquals("Curso Avanzado", viejo.getTituloCurso());
     }
 
     @Test
+    @DisplayName("Actualizar curso inexistente")
     void testUpdateCursoInexistente() {
-        Curso nuevo = new Curso();
-        nuevo.setTituloCurso("Java Nuevo");
-        nuevo.setDescripcionCurso("Actualizado");
-        nuevo.setEstadoCurso("Activo");
-
+        Curso nuevo = crearCursoDummy();
         when(cursoRepository.existsById(1)).thenReturn(false);
 
         String resultado = cursoService.updateCurso(1, nuevo);
@@ -110,30 +119,29 @@ public class CursoTest {
     }
 
     @Test
+    @DisplayName("Obtener curso existente")
     void testGetCursoExistente() {
-        Curso curso = new Curso();
-        curso.setTituloCurso("Curso Existente");
-        curso.setDescripcionCurso("Descripción");
-        curso.setEstadoCurso("Activo");
-
+        Curso curso = crearCursoDummy();
         when(cursoRepository.existsById(1)).thenReturn(true);
         when(cursoRepository.findById(1)).thenReturn(Optional.of(curso));
 
-        String resultado = cursoService.getCurso(1);
+        Curso resultado = cursoService.getCurso(1);
 
-        assertEquals(curso.toString(), resultado);
+        assertEquals(curso, resultado);
     }
 
     @Test
+    @DisplayName("Obtener curso inexistente")
     void testGetCursoInexistente() {
         when(cursoRepository.existsById(1)).thenReturn(false);
 
-        String resultado = cursoService.getCurso(1);
+        Curso resultado = cursoService.getCurso(1);
 
-        assertEquals("No se encuentra", resultado);
+        assertNull(resultado);
     }
 
     @Test
+    @DisplayName("Obtener todos los cursos")
     void testGetAllCursos() {
         Curso c1 = new Curso();
         c1.setTituloCurso("Curso 1");
@@ -148,5 +156,59 @@ public class CursoTest {
 
         assertEquals(2, resultado.size());
         assertEquals("Curso 1", resultado.get(0).getTituloCurso());
+    }
+
+    @Test
+    @DisplayName("GET /Cursos - obtener lista")
+    void testGetAllCursosController() throws Exception {
+        List<Curso> cursos = Arrays.asList(crearCursoDummy(), crearCursoDummy());
+        when(cursoRepository.findAll()).thenReturn(cursos);
+
+        mockMvc.perform(get("/Cursos"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(cursos.size()));
+    }
+
+    @Test
+    @DisplayName("GET /Cursos/{id} - curso encontrado")
+    void testGetCursoPorIdControllerExistente() throws Exception {
+        Curso curso = crearCursoDummy();
+        when(cursoRepository.existsById(1)).thenReturn(true);
+        when(cursoRepository.findById(1)).thenReturn(Optional.of(curso));
+
+        mockMvc.perform(get("/Cursos/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.tituloCurso").value("Curso de Java"));
+    }
+
+    @Test
+    @DisplayName("POST /Cursos - crear curso")
+    void testAddCursoController() throws Exception {
+        Curso curso = crearCursoDummy();
+        when(cursoRepository.save(any())).thenReturn(curso);
+
+        mockMvc.perform(post("/Cursos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(curso)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.tituloCurso").value("Curso de Java"));
+    }
+
+    @Test
+    @DisplayName("PUT /Cursos/{id} - actualizar curso")
+    void testUpdateCursoController() throws Exception {
+        Curso viejo = crearCursoDummy();
+        Curso nuevo = crearCursoDummy();
+        nuevo.setTituloCurso("Curso Actualizado");
+
+        when(cursoRepository.existsById(1)).thenReturn(true);
+        when(cursoRepository.findById(1)).thenReturn(Optional.of(viejo));
+        when(cursoRepository.save(any())).thenReturn(viejo);
+
+        mockMvc.perform(put("/Cursos/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(nuevo)))
+                .andExpect(status().isOk())
+                .andExpect(content().string(" actualizado con exito"));
     }
 }

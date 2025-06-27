@@ -35,14 +35,14 @@ public class AdminService {
      }
 
  }
-    public String getAdmin(int id){
+    public Admin getAdmin(int id){
         String output="";
         if(repository.existsById(id)){
             Admin  clase = repository.findById(id).get();
             output = clase.toString();
-            return output;
+            return clase;
         }else{
-            return "No se encuentra";
+            return null;
         }
     }
 public List<Admin> getAllAdmins() {

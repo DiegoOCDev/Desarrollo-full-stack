@@ -42,14 +42,14 @@ public class UsuarioService {
 
     }
 
-    public String getUsuario(int id) {
+    public Usuario getUsuario(int id) {
         String output = "";
         if (repository.existsById(id)) {
             Usuario usuario = repository.findById(id).get();
             output = usuario.toString();
-            return output;
+            return usuario;
         } else {
-            return "No se encuentra";
+            return null;
         }
     }
 

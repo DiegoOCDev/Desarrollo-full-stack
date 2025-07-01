@@ -1,5 +1,6 @@
 package com.API.API.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -9,6 +10,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "estudiante")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Estudiante {
     @Id
     @Column(name = "idEstudiante", nullable = false)

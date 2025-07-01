@@ -1,6 +1,7 @@
 package com.API.API.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -12,6 +13,8 @@ import java.time.LocalDate;
 @Setter
 @Entity
 @Table(name = "reporte")
+
+
 public class Reporte {
     @Id
     @Column(name = "idReporte", nullable = false)
